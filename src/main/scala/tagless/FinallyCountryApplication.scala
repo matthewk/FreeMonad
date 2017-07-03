@@ -2,44 +2,72 @@ package tagless
 
 import model.{Country, CountryDetail}
 import cats.implicits._
-import scala.concurrent.Await
+import utils.ApplicationWrapper
 
+import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-object FinallyCountryApplication extends App {
+object FinallyCountryApplication extends App with ApplicationWrapper {
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  println("--------------------------------------------------------")
-  println("Executing Finally Tagless\n")
+  /**
+    * Bringing together the CountriesService (representing the program) and
+    * some State Monad based interpreters that will provide implementation
+    * for the program. The State Monad allows us to accumulate state during
+    * the execution of the application and inspect that state once execution
+    * has completed.
+    */
+  object StateBasedApplication {
+    val countriesService =
+      new CountriesService(StateCountriesApiInterpreter,
+                           StateLoggerInterpreter)
 
-  val api = new CountriesService(CountriesApiInterpreter, LoggerInterpreter)
+    val result: (List[String], List[(Country, CountryDetail)]) =
+      countriesService.getCountriesWithDetails.runEmpty.value
 
-  val future: FutureOfOption[List[(Country, CountryDetail)]] =
-    api.getCountriesWithDetails
-
-  val stateApi =
-    new CountriesService(StateCountriesApiInterpreter, StateLoggerInterpreter)
-
-  val stateResult: ListState[List[(Country, CountryDetail)]] =
-    stateApi.getCountriesWithDetails
-
-  val result = stateResult.runEmpty.value
-
-  println("\n------- as State Monad ------")
-  println(s"Completed result ==> ")
-  result._2.foreach{lc =>
-    printf("%-5s %-10s %-10s %-10s %-10s\n","", lc._1.name, lc._1.capital, lc._1.region, lc._2.currency)
   }
 
-  println("\n------- or as Future   ------")
-  println(s"Completed result ==> ")
-  val fResult = Await.result(future.value, atMost = Duration.Inf).getOrElse(List.empty)
-  fResult.foreach{lc =>
-    printf("%-5s %-10s %-10s %-10s %-10s\n","", lc._1.name, lc._1.capital, lc._1.region, lc._2.currency)
+  /**
+    * Bringing together the ContriesService (represetnating the program) and
+    * Future of Option interpreters that will provide implementations for the
+    * program.
+    */
+  object FutureBasedApplication {
+    val countriesService =
+      new CountriesService(CountriesApiInterpreter, LoggerInterpreter)
+
+    val result: FutureOfOption[List[(Country, CountryDetail)]] =
+      countriesService.getCountriesWithDetails
   }
 
-  println("\nWould have written the following to log ==>")
-  result._1.foreach(l => println(s"""\t$l"""))
+  application("Tagless Final") {
+    appVariantExecution("State Monad") {
+      StateBasedApplication.result._2.foreach { lc =>
+        printf("%-5s %-10s %-10s %-10s %-10s\n",
+               "",
+               lc._1.name,
+               lc._1.capital,
+               lc._1.region,
+               lc._2.currency)
+      }
+    }
 
-  println("--------------------------------------------------------")
+    appVariantExecution("Future") {
+      val futureResult = Await
+        .result(FutureBasedApplication.result.value, atMost = Duration.Inf)
+        .getOrElse(List.empty)
+      futureResult.foreach { lc =>
+        printf("%-5s %-10s %-10s %-10s %-10s\n",
+               "",
+               lc._1.name,
+               lc._1.capital,
+               lc._1.region,
+               lc._2.currency)
+      }
+    }
+
+    appLogViewer(
+      StateBasedApplication.result._1.foreach(l => println(s"""\t$l""")))
+  }
+
 }
