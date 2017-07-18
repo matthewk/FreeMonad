@@ -18,7 +18,7 @@ object CountriesService {
       _         <- info("Getting Countries")
       countries <- getCountries
       _         <- info("Getting Details")
-      cd        <- countries.map(getCountryDetail).sequenceU
+      cd        <- countries.traverseU(getCountryDetail)
       _         <- info("Completed")
     } yield countries.zip(cd)
   }

@@ -4,8 +4,18 @@ import cats.free.{Free, Inject}
 import model._
 import model.LogLevel._
 
+/**
+  * The dsl will lift the algebra into a free monad by use of smart constructors
+  * the liftF or inject helper methods on the Free object
+  */
 object DSL {
 
+  /**
+    * CountryOps provides a set of functions replicating the types that are found
+    * in the algebra. These functions help instantiate the algebraic data types.
+    * @param I
+    * @tparam F
+    */
   class CountryOps[F[_]](implicit I: Inject[CountriesApiAlg, F]) {
 
     def getCountries: Free[F, List[Country]] =

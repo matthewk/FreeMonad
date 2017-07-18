@@ -17,7 +17,7 @@ class CountriesService[F[_]: Monad](countriesApi: CountriesApiAlg[F], logger: Lo
       _  <- logMsg(InfoLevel, "Getting Countries")
       cs <- getCountries
       _  <- logMsg(InfoLevel, "Getting Details")
-      cd <- cs.map(getCountyDetail).sequenceU
+      cd <- cs.traverse(getCountyDetail)
       _  <- logMsg(InfoLevel, "Completed")
     } yield cs.zip(cd)
 }
