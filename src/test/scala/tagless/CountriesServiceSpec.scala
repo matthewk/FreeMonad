@@ -32,9 +32,9 @@ class CountriesServiceSpec extends FlatSpec with Matchers {
 
     result._2 shouldBe List(
       (Country("England", "London", "Europe", "flag"),
-       CountryDetail("England", "GBP")),
+       Some(CountryDetail("England", "GBP"))),
       (Country("Spain", "Madrid", "Europe", "flag"),
-       CountryDetail("Spain", "Euro"))
+       Some(CountryDetail("Spain", "Euro")))
     )
   }
 }

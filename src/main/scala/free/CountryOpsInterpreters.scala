@@ -1,11 +1,13 @@
 package free
 
-import cats.~>
-import cats.data.OptionT
 import cats.instances.future._
+
+import cats.syntax.functor._
+import cats.{Functor, ~>}
 import model.{Country, CountryDetail}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object CountryOpsInterpreters {
 
@@ -19,33 +21,37 @@ object CountryOpsInterpreters {
     CountryDetail("Spain", "Euro")
   )
 
-  val listStateCountryInterpreter = new (CountriesApiAlg ~> ListState) {
-    override def apply[A](op: CountriesApiAlg[A]): ListState[A] = op match {
-      case GetCountyDetail(country) => {
-        val result = countryDetail.find(_.name.equalsIgnoreCase(country.name))
-        addToState(
-          s"Got details: \n\t${result.map(c => s"${country.name } -> ${c.currency }").mkString("\n") }",
-          result.get.asInstanceOf[A]
-        )
+  def fCountryInterpreter[F[_]](t: tagless.CountriesApiAlg[F])(implicit fFunctor: Functor[F]) =
+    new (CountriesApiAlg ~> F) {
+      override def apply[A](fa: CountriesApiAlg[A]): F[A] = fa match {
+        case GetCountyDetail(country) =>
+          t.getCountyDetail(country).map(_.asInstanceOf[A])
+
+        case GetCountries() =>
+          t.getCountries.map(_.asInstanceOf[A])
       }
-
-      case GetCountries() =>
-        addToState(
-          s"Got countries: \n\t${countries.map(c => s"${c.name } with capital ${c.capital }").mkString("\n") }",
-          countries.asInstanceOf[A]
-        )
     }
-  }
 
-  val futureOfOptionCountryInterpreter =
-    new (CountriesApiAlg ~> FutureOfOption) {
-      override def apply[A](fa: CountriesApiAlg[A]): FutureOfOption[A] =
-        fa match {
-          case GetCountyDetail(country) =>
-            OptionT.pure(countryDetail.find(_.name.equalsIgnoreCase(country.name)).get)
+  val listStateCountryInterpreter = fCountryInterpreter[ListState](tagless.StateCountriesApiInterpreter)
 
-          case GetCountries() =>
-            OptionT.pure(countries.toList)
-        }
-    }
+//    new (CountriesApiAlg ~> ListState) {
+//    override def apply[A](op: CountriesApiAlg[A]): ListState[A] = op match {
+//      case GetCountyDetail(country) => {
+//        val result = countryDetail.find(_.name.equalsIgnoreCase(country.name))
+//        addToState(
+//          s"Got details: \n\t${result.map(c => s"${country.name} -> ${c.currency}").mkString("\n")}",
+//          result.asInstanceOf[A]
+//        )
+//      }
+//
+//      case GetCountries() =>
+//        addToState(
+//          s"Got countries: \n\t${countries.map(c => s"${c.name} with capital ${c.capital}").mkString("\n")}",
+//          countries.toList.asInstanceOf[A]
+//        )
+//    }
+//  }
+
+  val futureCountryInterpreter = fCountryInterpreter[Future](tagless.CountriesApiInterpreter)
+
 }

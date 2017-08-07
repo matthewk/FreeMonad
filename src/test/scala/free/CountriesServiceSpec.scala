@@ -26,7 +26,7 @@ class CountriesServiceSpec extends FlatSpec with Matchers {
     val interpreters = CountryOpsTestInterpreters(countries, countryDetail) or
       LoggerOpsInterpreters.loggerListStateInterpreter
 
-    val listState: ListState[List[(Country, CountryDetail)]] =
+    val listState: ListState[List[(Country, Option[CountryDetail])]] =
       fetchCountries
       .foldMap(interpreters)
 

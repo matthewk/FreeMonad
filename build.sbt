@@ -2,9 +2,16 @@ name := "FreeMonads"
 
 version := "1.0"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.3"
 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
+scalacOptions in ThisBuild ++= Seq(
+  "-deprecation",
+  "-unchecked",
+  "-feature",
+  "-Xlint",
+  "-Xfatal-warnings",
+  "-language:higherKinds"
+)
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats" % "0.9.0",

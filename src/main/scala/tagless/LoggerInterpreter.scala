@@ -1,15 +1,13 @@
 package tagless
 
-import cats.data.OptionT
-import cats.instances.future._
 import model.LogLevel
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-object LoggerInterpreter extends Logger[FutureOfOption] {
-  override def logMsg(level: LogLevel, msg: String): FutureOfOption[Unit] = {
+object LoggerInterpreter extends Logger[Future] {
+  override def logMsg(level: LogLevel, msg: String): Future[Unit] = {
     println(s"$level => $msg")
-    OptionT.pure(())
+    Future.successful(())
   }
 }
 

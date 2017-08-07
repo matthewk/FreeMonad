@@ -11,7 +11,7 @@ class CountriesService[F[_]: Monad](countriesApi: CountriesApiAlg[F], logger: Lo
 
   import logger._, countriesApi._
 
-  def getCountriesWithDetails: F[List[(Country, CountryDetail)]] =
+  def getCountriesWithDetails: F[List[(Country, Option[CountryDetail])]] =
     for {
       _  <- logMsg(InfoLevel, "Starting")
       _  <- logMsg(InfoLevel, "Getting Countries")

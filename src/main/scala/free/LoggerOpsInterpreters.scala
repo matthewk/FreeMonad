@@ -1,10 +1,8 @@
 package free
 
 import cats.~>
-import cats.data.OptionT
-import cats.instances.future._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object LoggerOpsInterpreters {
   val loggerListStateInterpreter = new (LoggerAlg ~> ListState) {
@@ -12,9 +10,9 @@ object LoggerOpsInterpreters {
       addToState(chooseMessage(a), ().asInstanceOf[A])
   }
 
-  val futureOfOptionInterpreter = new (LoggerAlg ~> FutureOfOption) {
-    override def apply[A](fa: LoggerAlg[A]): FutureOfOption[A] =
-      OptionT.pure(().asInstanceOf[A])
+  val futureInterpreter = new (LoggerAlg ~> Future) {
+    override def apply[A](fa: LoggerAlg[A]): Future[A] =
+      Future.successful(().asInstanceOf[A])
   }
 
   def chooseMessage[A](a: LoggerAlg[A]): String = a match {

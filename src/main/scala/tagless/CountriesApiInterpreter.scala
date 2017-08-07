@@ -1,12 +1,10 @@
 package tagless
 
 import model.{Country, CountryDetail}
-import cats.data.OptionT
-import cats.instances.future._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-object CountriesApiInterpreter extends CountriesApiAlg[FutureOfOption] {
+object CountriesApiInterpreter extends CountriesApiAlg[Future] {
 
   val countries = Seq(
     Country("England", "London", "Europe", "flag"),
@@ -18,12 +16,12 @@ object CountriesApiInterpreter extends CountriesApiAlg[FutureOfOption] {
     CountryDetail("Spain", "Euro")
   )
 
-  override def getCountries: FutureOfOption[List[Country]] =
-    OptionT.pure(countries.toList)
+  override def getCountries: Future[List[Country]] =
+    Future.successful(countries.toList)
 
   override def getCountyDetail(
-      country: Country): FutureOfOption[CountryDetail] =
-    OptionT.pure(countryDetail.find(_.name.equalsIgnoreCase(country.name)).get)
+      country: Country): Future[Option[CountryDetail]] =
+    Future.successful(countryDetail.find(_.name.equalsIgnoreCase(country.name)))
 }
 
 object StateCountriesApiInterpreter extends CountriesApiAlg[ListState] {
@@ -43,8 +41,8 @@ object StateCountriesApiInterpreter extends CountriesApiAlg[ListState] {
     addToState(result.mkString(","), result)
   }
 
-  override def getCountyDetail(country: Country): ListState[CountryDetail] = {
-    val result = countryDetail.find(_.name.equalsIgnoreCase(country.name)).get
+  override def getCountyDetail(country: Country): ListState[Option[CountryDetail]] = {
+    val result = countryDetail.find(_.name.equalsIgnoreCase(country.name))
     addToState(result.toString, result)
   }
 }

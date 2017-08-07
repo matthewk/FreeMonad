@@ -4,7 +4,7 @@ import model.{Country, CountryDetail}
 import cats.implicits._
 import utils.ApplicationWrapper
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 object FinallyCountryApplication extends App with ApplicationWrapper {
@@ -22,7 +22,7 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
       new CountriesService(StateCountriesApiInterpreter,
                            StateLoggerInterpreter)
 
-    val result: (List[String], List[(Country, CountryDetail)]) =
+    val result: (List[String], List[(Country, Option[CountryDetail])]) =
       countriesService.getCountriesWithDetails.runEmpty.value
 
   }
@@ -36,7 +36,7 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
     val countriesService =
       new CountriesService(CountriesApiInterpreter, LoggerInterpreter)
 
-    val result: FutureOfOption[List[(Country, CountryDetail)]] =
+    val result: Future[List[(Country, Option[CountryDetail])]] =
       countriesService.getCountriesWithDetails
   }
 
@@ -48,21 +48,20 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
                lc._1.name,
                lc._1.capital,
                lc._1.region,
-               lc._2.currency)
+               lc._2.map(_.currency))
       }
     }
 
     appVariantExecution("Future") {
       val futureResult = Await
-        .result(FutureBasedApplication.result.value, atMost = Duration.Inf)
-        .getOrElse(List.empty)
+        .result(FutureBasedApplication.result, atMost = Duration.Inf)
       futureResult.foreach { lc =>
         printf("%-5s %-10s %-10s %-10s %-10s\n",
                "",
                lc._1.name,
                lc._1.capital,
                lc._1.region,
-               lc._2.currency)
+               lc._2.map(_.currency))
       }
     }
 

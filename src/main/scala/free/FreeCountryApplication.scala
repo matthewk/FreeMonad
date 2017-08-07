@@ -4,10 +4,10 @@ import model.{Country, CountryDetail}
 import cats.implicits._
 import utils.ApplicationWrapper
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
-object iteFreeCountryApplication extends App with ApplicationWrapper {
+object FreeCountryApplication extends App with ApplicationWrapper {
   import scala.concurrent.ExecutionContext.Implicits.global
   import CountriesService._
 
@@ -23,9 +23,10 @@ object iteFreeCountryApplication extends App with ApplicationWrapper {
       CountryOpsInterpreters.listStateCountryInterpreter or
         LoggerOpsInterpreters.loggerListStateInterpreter
 
-    val program: ListState[List[(Country, CountryDetail)]] =
+    val program: ListState[List[(Country, Option[CountryDetail])]] =
       fetchCountries
         .foldMap(interpreters)
+
 
     val result = program.runEmpty.value
   }
@@ -37,10 +38,10 @@ object iteFreeCountryApplication extends App with ApplicationWrapper {
     */
   object FutureBasedApplication {
     val interpreters =
-      CountryOpsInterpreters.futureOfOptionCountryInterpreter or
-        LoggerOpsInterpreters.futureOfOptionInterpreter
+      CountryOpsInterpreters.futureCountryInterpreter or
+        LoggerOpsInterpreters.futureInterpreter
 
-    val program: FutureOfOption[List[(Country, CountryDetail)]] =
+    val program: Future[List[(Country, Option[CountryDetail])]] =
       fetchCountries.foldMap(interpreters)
   }
 
@@ -52,20 +53,20 @@ object iteFreeCountryApplication extends App with ApplicationWrapper {
                lc._1.name,
                lc._1.capital,
                lc._1.region,
-               lc._2.currency)
+               lc._2.map(_.currency))
       }
     }
     appVariantExecution("Future") {
       val fResult = Await
-        .result(FutureBasedApplication.program.value, atMost = Duration.Inf)
-        .getOrElse(List.empty)
+        .result(FutureBasedApplication.program, atMost = Duration.Inf)
+
       fResult.foreach { lc =>
         printf("%-5s %-10s %-10s %-10s %-10s\n",
                "",
                lc._1.name,
                lc._1.capital,
                lc._1.region,
-               lc._2.currency)
+               lc._2.map(_.currency))
       }
     }
 

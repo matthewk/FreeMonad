@@ -8,7 +8,7 @@ object CountriesService {
   import DSL._
 
   def fetchCountries(implicit C: CountryOps[Algebra], L: LoggerOps[Algebra]):
-   Service[List[(Country, CountryDetail)]] = {
+   Service[List[(Country, Option[CountryDetail])]] = {
 
     import C._
     import L._

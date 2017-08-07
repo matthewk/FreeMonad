@@ -13,15 +13,13 @@ object DSL {
   /**
     * CountryOps provides a set of functions replicating the types that are found
     * in the algebra. These functions help instantiate the algebraic data types.
-    * @param I
-    * @tparam F
     */
   class CountryOps[F[_]](implicit I: Inject[CountriesApiAlg, F]) {
 
     def getCountries: Free[F, List[Country]] =
       Free.inject[CountriesApiAlg, F](GetCountries())
 
-    def getCountryDetail(country: Country): Free[F, CountryDetail] =
+    def getCountryDetail(country: Country): Free[F, Option[CountryDetail]] =
       Free.inject[CountriesApiAlg, F](GetCountyDetail(country))
 
   }
