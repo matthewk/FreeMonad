@@ -19,7 +19,7 @@ object CountriesApiInterpreter extends CountriesApiAlg[Future] {
   override def getCountries: Future[List[Country]] =
     Future.successful(countries.toList)
 
-  override def getCountyDetail(
+  override def getCountryDetail(
       country: Country): Future[Option[CountryDetail]] =
     Future.successful(countryDetail.find(_.name.equalsIgnoreCase(country.name)))
 }
@@ -41,7 +41,7 @@ object StateCountriesApiInterpreter extends CountriesApiAlg[ListState] {
     addToState(result.mkString(","), result)
   }
 
-  override def getCountyDetail(country: Country): ListState[Option[CountryDetail]] = {
+  override def getCountryDetail(country: Country): ListState[Option[CountryDetail]] = {
     val result = countryDetail.find(_.name.equalsIgnoreCase(country.name))
     addToState(result.toString, result)
   }

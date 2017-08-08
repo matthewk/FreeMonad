@@ -25,7 +25,7 @@ object CountryOpsInterpreters {
     new (CountriesApiAlg ~> F) {
       override def apply[A](fa: CountriesApiAlg[A]): F[A] = fa match {
         case GetCountyDetail(country) =>
-          t.getCountyDetail(country).map(_.asInstanceOf[A])
+          t.getCountryDetail(country).map(_.asInstanceOf[A])
 
         case GetCountries() =>
           t.getCountries.map(_.asInstanceOf[A])

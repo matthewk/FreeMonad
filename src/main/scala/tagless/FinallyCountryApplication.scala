@@ -34,7 +34,7 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
     */
   object FutureBasedApplication {
     val countriesService =
-      new CountriesService(CountriesApiInterpreter, LoggerInterpreter)
+      new CountriesService(CountriesApiInterpreter, FutureLoggerInterpreter)
 
     val result: Future[List[(Country, Option[CountryDetail])]] =
       countriesService.getCountriesWithDetails
