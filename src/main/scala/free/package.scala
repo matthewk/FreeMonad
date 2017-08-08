@@ -5,7 +5,7 @@ import scala.concurrent.Future
 
 package object free {
   type FutureOfOption[A] = OptionT[Future, A]
-  type Algebra[A]        = Coproduct[CountriesApiAlg, LoggerAlg, A]
+  type Algebra[A]        = Coproduct[CountriesAlg, LoggerAlg, A]
   type Service[A]        = Free[Algebra, A]
   type ListState[A]      = State[List[String], A]
 

@@ -2,13 +2,13 @@ package tagless
 import model.LogLevel.{DebugLevel, ErrorLevel, InfoLevel, WarnLevel}
 import model.{Country, CountryDetail, LogLevel}
 
-trait CountriesApiAlg[F[_]] {
+trait CountriesApi[F[_]] {
   def getCountries: F[List[Country]]
 
   def getCountryDetail(country: Country): F[Option[CountryDetail]]
 }
 
-trait LoggerApiAlg[F[_]] {
+trait LoggerApi[F[_]] {
 
    def debug(msg: String): F[Unit] = logMsg(DebugLevel, msg)
 

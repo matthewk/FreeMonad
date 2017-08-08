@@ -14,19 +14,19 @@ object DSL {
     * CountryOps provides a set of functions replicating the types that are found
     * in the algebra. These functions help instantiate the algebraic data types.
     */
-  class CountryOps[F[_]](implicit I: Inject[CountriesApiAlg, F])
-    extends tagless.CountriesApiAlg[Free[F, ?]] {
+  class CountryOps[F[_]](implicit I: Inject[CountriesAlg, F])
+    extends tagless.CountriesApi[Free[F, ?]] {
 
     def getCountries: Free[F, List[Country]] =
-      Free.inject[CountriesApiAlg, F](GetCountries())
+      Free.inject[CountriesAlg, F](GetCountries())
 
     def getCountryDetail(country: Country): Free[F, Option[CountryDetail]] =
-      Free.inject[CountriesApiAlg, F](GetCountyDetail(country))
+      Free.inject[CountriesAlg, F](GetCountyDetail(country))
 
   }
 
   class LoggerOps[F[_]](implicit L: Inject[LoggerAlg, F])
-    extends tagless.LoggerApiAlg[Free[F, ?]] {
+    extends tagless.LoggerApi[Free[F, ?]] {
 
     override def logMsg(level: LogLevel, msg: String): Free[F, Unit] =
       Free.inject[LoggerAlg, F](LogMsg(ErrorLevel, msg))
@@ -35,7 +35,7 @@ object DSL {
 
   object CountryOps {
     implicit def countryOps[F[_]](
-      implicit I: Inject[CountriesApiAlg, F]
+      implicit I: Inject[CountriesAlg, F]
     ): CountryOps[F] =
       new CountryOps[F]
   }

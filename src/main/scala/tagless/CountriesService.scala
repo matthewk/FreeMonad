@@ -6,7 +6,7 @@ import model.{Country, CountryDetail}
 
 import scala.language.higherKinds
 
-class CountriesService[F[_]: Monad](countriesApi: CountriesApiAlg[F], logger: LoggerApiAlg[F]) {
+class CountriesService[F[_]: Monad](countriesApi: CountriesApi[F], logger: LoggerApi[F]) {
 
   import countriesApi._
   import logger._

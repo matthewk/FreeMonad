@@ -21,9 +21,9 @@ object CountryOpsInterpreters {
     CountryDetail("Spain", "Euro")
   )
 
-  def fCountryInterpreter[F[_]](t: tagless.CountriesApiAlg[F])(implicit fFunctor: Functor[F]) =
-    new (CountriesApiAlg ~> F) {
-      override def apply[A](fa: CountriesApiAlg[A]): F[A] = fa match {
+  def fCountryInterpreter[F[_]](t: tagless.CountriesApi[F])(implicit fFunctor: Functor[F]) =
+    new (CountriesAlg ~> F) {
+      override def apply[A](fa: CountriesAlg[A]): F[A] = fa match {
         case GetCountyDetail(country) =>
           t.getCountryDetail(country).map(_.asInstanceOf[A])
 
@@ -32,8 +32,8 @@ object CountryOpsInterpreters {
       }
     }
 
-  val listStateCountryInterpreter = fCountryInterpreter[ListState](tagless.StateCountriesApiInterpreter)
+  val listStateCountryInterpreter = fCountryInterpreter[ListState](tagless.CountriesStateInterpreter)
 
-  val futureCountryInterpreter = fCountryInterpreter[Future](tagless.CountriesApiInterpreter)
+  val futureCountryInterpreter = fCountryInterpreter[Future](tagless.CountriesFutureInterpreter)
 
 }

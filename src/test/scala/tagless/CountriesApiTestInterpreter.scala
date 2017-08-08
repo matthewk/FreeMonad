@@ -3,7 +3,7 @@ package tagless
 import model.{Country, CountryDetail}
 
 class CountriesApiTestInterpreter(countries: List[Country], details: List[CountryDetail]) extends
-  CountriesApiAlg[ListState]{
+  CountriesApi[ListState]{
 
   override def getCountries: ListState[List[Country]] =
     addManyToState(countries.map(c => s"""\tCountry: ${c.name}, ${c.region}"""), countries)

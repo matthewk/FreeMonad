@@ -8,7 +8,8 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 object FinallyCountryApplication extends App with ApplicationWrapper {
-  import scala.concurrent.ExecutionContext.Implicits.global
+
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   /**
     * Bringing together the CountriesService (representing the program) and
@@ -19,8 +20,8 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
     */
   object StateBasedApplication {
     val countriesService =
-      new CountriesService(StateCountriesApiInterpreter,
-                           StateLoggerInterpreter)
+      new CountriesService(CountriesStateInterpreter,
+                           LoggerStateInterpreter)
 
     val result: (List[String], List[(Country, Option[CountryDetail])]) =
       countriesService.getCountriesWithDetails.runEmpty.value
@@ -28,13 +29,13 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
   }
 
   /**
-    * Bringing together the ContriesService (represetnating the program) and
+    * Bringing together the CountriesService (representing the program) and
     * Future of Option interpreters that will provide implementations for the
     * program.
     */
   object FutureBasedApplication {
     val countriesService =
-      new CountriesService(CountriesApiInterpreter, FutureLoggerInterpreter)
+      new CountriesService(CountriesFutureInterpreter, LoggerFutureInterpreter)
 
     val result: Future[List[(Country, Option[CountryDetail])]] =
       countriesService.getCountriesWithDetails
