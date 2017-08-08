@@ -1,21 +1,27 @@
 package free
 
-import cats.~>
+import cats.instances.future._
+import cats.syntax.functor._
+import cats.{Functor, ~>}
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object LoggerOpsInterpreters {
-  val loggerListStateInterpreter = new (LoggerAlg ~> ListState) {
-    override def apply[A](a: LoggerAlg[A]): ListState[A] =
-      addToState(chooseMessage(a), ().asInstanceOf[A])
-  }
+  /**
+    * Implement an interpreter for the Free algebra of the Logger using
+    * an instance of the tagless api
+    */
+  def fLoggerInterpreter[F[_]](t: tagless.LoggerApi[F])(implicit fFunctor: Functor[F]) =
+    new (LoggerAlg ~> F) {
+      override def apply[A](fa: LoggerAlg[A]): F[A] = fa match {
+        case LogMsg(level, msg) =>
+          t.logMsg(level, msg).map(_.asInstanceOf[A])
+      }
+    }
 
-  val futureInterpreter = new (LoggerAlg ~> Future) {
-    override def apply[A](fa: LoggerAlg[A]): Future[A] =
-      Future.successful(().asInstanceOf[A])
-  }
+  val loggerListStateInterpreter =
+    fLoggerInterpreter(tagless.LoggerStateInterpreter)
 
-  def chooseMessage[A](a: LoggerAlg[A]): String = a match {
-    case LogMsg(level, msg) => s"$level => $msg"
-  }
+  val futureInterpreter =
+    fLoggerInterpreter(tagless.LoggerFutureInterpreter)
 }

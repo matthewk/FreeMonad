@@ -13,6 +13,18 @@ object DSL {
   /**
     * CountryOps provides a set of functions replicating the types that are found
     * in the algebra. These functions help instantiate the algebraic data types.
+    *
+    * Note that the methods on CountryOps are the same as the methods on the finally tagless
+    * CountriesApi trait. This means CountryOps can be an implementation of the tagless
+    * api. So an application that is using tagless can use this class as an interpreter to
+    * convert a program to the Free algebra.
+    *
+    * Compare that to `CountryOpsInterpreters.fCountryInterpreter`, which can interpret
+    * the Free case-class algebra using an implementation of the tagless api. I.e.
+    * `fCountryInterpreter` is a general way of building a Free interpreter out of
+    * a tagless implementation.
+    *
+    * The combination of these two all trivial conversion between Free and Finally Tagless.
     */
   class CountryOps[F[_]](implicit I: Inject[CountriesAlg, F])
     extends tagless.CountriesApi[Free[F, ?]] {
@@ -22,7 +34,6 @@ object DSL {
 
     def getCountryDetail(country: Country): Free[F, Option[CountryDetail]] =
       Free.inject[CountriesAlg, F](GetCountyDetail(country))
-
   }
 
   class LoggerOps[F[_]](implicit L: Inject[LoggerAlg, F])
@@ -30,7 +41,6 @@ object DSL {
 
     override def logMsg(level: LogLevel, msg: String): Free[F, Unit] =
       Free.inject[LoggerAlg, F](LogMsg(ErrorLevel, msg))
-
   }
 
   object CountryOps {

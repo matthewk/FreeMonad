@@ -1,26 +1,19 @@
 package free
 
 import cats.instances.future._
-
 import cats.syntax.functor._
 import cats.{Functor, ~>}
-import model.{Country, CountryDetail}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object CountryOpsInterpreters {
 
-  val countries = Seq(
-    Country("England", "London", "Europe", "flag"),
-    Country("Spain", "Madrid", "Europe", "flag")
-  )
-
-  val countryDetail = Seq(
-    CountryDetail("England", "GBP"),
-    CountryDetail("Spain", "Euro")
-  )
-
+  /**
+    * Build a interpreter of the Free algebra out of an implementation of the tagless API
+    * by simply extracting the parameters from each case class and delegating to the
+    * api implementation.
+    */
   def fCountryInterpreter[F[_]](t: tagless.CountriesApi[F])(implicit fFunctor: Functor[F]) =
     new (CountriesAlg ~> F) {
       override def apply[A](fa: CountriesAlg[A]): F[A] = fa match {
