@@ -34,24 +34,6 @@ object CountryOpsInterpreters {
 
   val listStateCountryInterpreter = fCountryInterpreter[ListState](tagless.StateCountriesApiInterpreter)
 
-//    new (CountriesApiAlg ~> ListState) {
-//    override def apply[A](op: CountriesApiAlg[A]): ListState[A] = op match {
-//      case GetCountyDetail(country) => {
-//        val result = countryDetail.find(_.name.equalsIgnoreCase(country.name))
-//        addToState(
-//          s"Got details: \n\t${result.map(c => s"${country.name} -> ${c.currency}").mkString("\n")}",
-//          result.asInstanceOf[A]
-//        )
-//      }
-//
-//      case GetCountries() =>
-//        addToState(
-//          s"Got countries: \n\t${countries.map(c => s"${c.name} with capital ${c.capital}").mkString("\n")}",
-//          countries.toList.asInstanceOf[A]
-//        )
-//    }
-//  }
-
   val futureCountryInterpreter = fCountryInterpreter[Future](tagless.CountriesApiInterpreter)
 
 }
