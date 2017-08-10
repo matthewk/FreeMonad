@@ -1,10 +1,7 @@
 package free
 
-import cats.instances.future._
-import cats.syntax.functor._
-import cats.{Functor, ~>}
+import cats.~>
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object CountryOpsInterpreters {
@@ -14,14 +11,12 @@ object CountryOpsInterpreters {
     * by simply extracting the parameters from each case class and delegating to the
     * api implementation.
     */
-  def fCountryInterpreter[F[_]](t: tagless.CountriesApi[F])(implicit fFunctor: Functor[F]) =
+  def fCountryInterpreter[F[_]](t: tagless.CountriesApi[F]) =
     new (CountriesAlg ~> F) {
       override def apply[A](fa: CountriesAlg[A]): F[A] = fa match {
-        case GetCountyDetail(country) =>
-          t.getCountryDetail(country).map(_.asInstanceOf[A])
+        case GetCountyDetail(country) => t.getCountryDetail(country)
 
-        case GetCountries() =>
-          t.getCountries.map(_.asInstanceOf[A])
+        case GetCountries() => t.getCountries
       }
     }
 
