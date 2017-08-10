@@ -1,23 +1,23 @@
 package tagless
 
 import cats.Monad
-import model.{Country, CountryDetail}
 import cats.implicits._
-import model.LogLevel._
+import model.{Country, CountryDetail}
 
 import scala.language.higherKinds
 
-class CountriesService[F[_]: Monad](countriesApi: CountriesApiAlg[F], logger: Logger[F]) {
+class CountriesService[F[_]: Monad](countriesApi: CountriesApi[F], logger: LoggerApi[F]) {
 
-  import logger._, countriesApi._
+  import countriesApi._
+  import logger._
 
-  def getCountriesWithDetails: F[List[(Country, CountryDetail)]] =
+  def getCountriesWithDetails: F[List[(Country, Option[CountryDetail])]] =
     for {
-      _  <- logMsg(InfoLevel, "Starting")
-      _  <- logMsg(InfoLevel, "Getting Countries")
-      cs <- getCountries
-      _  <- logMsg(InfoLevel, "Getting Details")
-      cd <- cs.traverse(getCountyDetail)
-      _  <- logMsg(InfoLevel, "Completed")
+      _  <- info("Starting")
+      _  <- info("Getting Countries")
+      cs <- countries
+      _  <- info("Getting Details")
+      cd <- cs.traverse(countryDetail)
+      _  <- info("Completed")
     } yield cs.zip(cd)
 }

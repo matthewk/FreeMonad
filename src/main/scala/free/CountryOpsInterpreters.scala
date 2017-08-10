@@ -1,51 +1,27 @@
 package free
 
 import cats.~>
-import cats.data.OptionT
-import cats.instances.future._
-import model.{Country, CountryDetail}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object CountryOpsInterpreters {
 
-  val countries = Seq(
-    Country("England", "London", "Europe", "flag"),
-    Country("Spain", "Madrid", "Europe", "flag")
-  )
+  /**
+    * Build a interpreter of the Free algebra out of an implementation of the tagless API
+    * by simply extracting the parameters from each case class and delegating to the
+    * api implementation.
+    */
+  def fCountryInterpreter[F[_]](t: tagless.CountriesApi[F]) =
+    new (CountriesAlg ~> F) {
+      override def apply[A](fa: CountriesAlg[A]): F[A] = fa match {
+        case CountyDetail(country) => t.countryDetail(country)
 
-  val countryDetail = Seq(
-    CountryDetail("England", "GBP"),
-    CountryDetail("Spain", "Euro")
-  )
-
-  val listStateCountryInterpreter = new (CountriesApiAlg ~> ListState) {
-    override def apply[A](op: CountriesApiAlg[A]): ListState[A] = op match {
-      case GetCountyDetail(country) => {
-        val result = countryDetail.find(_.name.equalsIgnoreCase(country.name))
-        addToState(
-          s"Got details: \n\t${result.map(c => s"${country.name } -> ${c.currency }").mkString("\n") }",
-          result.get.asInstanceOf[A]
-        )
+        case Countries() => t.countries
       }
-
-      case GetCountries() =>
-        addToState(
-          s"Got countries: \n\t${countries.map(c => s"${c.name } with capital ${c.capital }").mkString("\n") }",
-          countries.asInstanceOf[A]
-        )
     }
-  }
 
-  val futureOfOptionCountryInterpreter =
-    new (CountriesApiAlg ~> FutureOfOption) {
-      override def apply[A](fa: CountriesApiAlg[A]): FutureOfOption[A] =
-        fa match {
-          case GetCountyDetail(country) =>
-            OptionT.pure(countryDetail.find(_.name.equalsIgnoreCase(country.name)).get)
+  val listStateCountryInterpreter = fCountryInterpreter[ListState](tagless.CountriesStateInterpreter)
 
-          case GetCountries() =>
-            OptionT.pure(countries.toList)
-        }
-    }
+  val futureCountryInterpreter = fCountryInterpreter[Future](tagless.CountriesFutureInterpreter)
+
 }

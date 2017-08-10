@@ -1,14 +1,15 @@
 package tagless
 
-import model.{Country, CountryDetail}
 import cats.implicits._
+import model.{Country, CountryData, CountryDetail}
 import utils.ApplicationWrapper
 
-import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 object FinallyCountryApplication extends App with ApplicationWrapper {
-  import scala.concurrent.ExecutionContext.Implicits.global
+
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   /**
     * Bringing together the CountriesService (representing the program) and
@@ -19,55 +20,45 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
     */
   object StateBasedApplication {
     val countriesService =
-      new CountriesService(StateCountriesApiInterpreter,
-                           StateLoggerInterpreter)
+      new CountriesService(
+        CountriesStateInterpreter,
+        LoggerStateInterpreter)
 
-    val result: (List[String], List[(Country, CountryDetail)]) =
+    val result: (List[String], List[(Country, Option[CountryDetail])]) =
       countriesService.getCountriesWithDetails.runEmpty.value
-
   }
 
   /**
-    * Bringing together the ContriesService (represetnating the program) and
+    * Bringing together the CountriesService (representing the program) and
     * Future of Option interpreters that will provide implementations for the
     * program.
     */
   object FutureBasedApplication {
     val countriesService =
-      new CountriesService(CountriesApiInterpreter, LoggerInterpreter)
+      new CountriesService(CountriesFutureInterpreter, LoggerFutureInterpreter)
 
-    val result: FutureOfOption[List[(Country, CountryDetail)]] =
+    val result: Future[List[(Country, Option[CountryDetail])]] =
       countriesService.getCountriesWithDetails
   }
 
   application("Tagless Final") {
     appVariantExecution("State Monad") {
-      StateBasedApplication.result._2.foreach { lc =>
-        printf("%-5s %-10s %-10s %-10s %-10s\n",
-               "",
-               lc._1.name,
-               lc._1.capital,
-               lc._1.region,
-               lc._2.currency)
+      StateBasedApplication.result._2.foreach {
+        case (c, d) => CountryData.printResult(c, d)
       }
     }
 
     appVariantExecution("Future") {
       val futureResult = Await
-        .result(FutureBasedApplication.result.value, atMost = Duration.Inf)
-        .getOrElse(List.empty)
-      futureResult.foreach { lc =>
-        printf("%-5s %-10s %-10s %-10s %-10s\n",
-               "",
-               lc._1.name,
-               lc._1.capital,
-               lc._1.region,
-               lc._2.currency)
+        .result(FutureBasedApplication.result, atMost = Duration.Inf)
+      futureResult.foreach {
+        case (c, d) => CountryData.printResult(c, d)
       }
     }
 
     appLogViewer(
       StateBasedApplication.result._1.foreach(l => println(s"""\t$l""")))
   }
+
 
 }

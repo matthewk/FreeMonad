@@ -8,7 +8,7 @@ object CountriesService {
   import DSL._
 
   def fetchCountries(implicit C: CountryOps[Algebra], L: LoggerOps[Algebra]):
-   Service[List[(Country, CountryDetail)]] = {
+   Service[List[(Country, Option[CountryDetail])]] = {
 
     import C._
     import L._
@@ -16,9 +16,9 @@ object CountriesService {
     for {
       _         <- info("Starting")
       _         <- info("Getting Countries")
-      countries <- getCountries
+      countries <- countries
       _         <- info("Getting Details")
-      cd        <- countries.traverseU(getCountryDetail)
+      cd        <- countries.traverseU(countryDetail)
       _         <- info("Completed")
     } yield countries.zip(cd)
   }

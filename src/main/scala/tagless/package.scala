@@ -1,8 +1,6 @@
-import cats.data.{OptionT, State}
-import scala.concurrent.Future
+import cats.data.State
 
 package object tagless {
-  type FutureOfOption[A] = OptionT[Future, A]
   type ListState[A]      = State[List[String], A]
 
   def addToState[A](s: String, elem: A): ListState[A] =
