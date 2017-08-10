@@ -29,7 +29,6 @@ object FreeCountryApplication extends App with ApplicationWrapper {
       fetchCountries
         .foldMap(interpreters)
 
-
     val result = program.runEmpty.value
   }
 

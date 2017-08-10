@@ -26,7 +26,6 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
 
     val result: (List[String], List[(Country, Option[CountryDetail])]) =
       countriesService.getCountriesWithDetails.runEmpty.value
-
   }
 
   /**
