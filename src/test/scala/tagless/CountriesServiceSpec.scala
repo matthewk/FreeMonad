@@ -25,16 +25,14 @@ class CountriesServiceSpec extends FlatSpec with Matchers {
     val interpreter = new CountriesApiTestInterpreter(countries, countryDetail)
     val api = new CountriesService(interpreter, LoggerTestInterpreter)
 
-    val result = api.getCountriesWithDetails.runEmpty.value
+    val (logs, results) = api.getCountriesWithDetails.runEmpty.value
 
     println("Consolidated log from running the interpreter:")
-    result._1.foreach(l => println(s"""\t\t$l"""))
+    logs.foreach(l => println(s"""\t\t$l"""))
 
-    result._2 shouldBe List(
-      (Country("England", "London", "Europe", "flag"),
-       Some(CountryDetail("England", "GBP"))),
-      (Country("Spain", "Madrid", "Europe", "flag"),
-       Some(CountryDetail("Spain", "Euro")))
+    results shouldBe List(
+      (Country("England", "London", "Europe", "flag"), Some(CountryDetail("England", "GBP"))),
+      (Country("Spain", "Madrid", "Europe", "flag"), Some(CountryDetail("Spain", "Euro")))
     )
   }
 }
