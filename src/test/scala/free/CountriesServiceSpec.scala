@@ -1,23 +1,13 @@
 package free
 
-import model.{Country, CountryDetail}
-import org.scalatest.{FlatSpec, Matchers}
 import cats.implicits._
 import free.CountriesService.fetchCountries
+import model.{CountriesData, Country, CountryDetail}
+import org.scalatest.{FlatSpec, Matchers}
 
 class CountriesServiceSpec extends FlatSpec with Matchers {
 
-  val countries =
-    List(
-      Country("England" , "London", "Europe", "flag"),
-      Country("Spain"   , "Madrid", "Europe", "flag")
-    )
-
-  val countryDetail =
-    List(
-      CountryDetail("England" , "GBP"),
-      CountryDetail("Spain"   , "Euro")
-    )
+  import CountriesData._
 
   behavior of "Free Monad CountriesService"
 
