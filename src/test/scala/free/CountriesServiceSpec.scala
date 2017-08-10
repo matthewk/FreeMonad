@@ -13,7 +13,7 @@ class CountriesServiceSpec extends FlatSpec with Matchers {
 
   it should "get all countries and details for each country in a combined result" in {
 
-    val interpreters = CountryOpsTestInterpreters(countries, countryDetail) or
+    val interpreters = CountryOpsTestInterpreters(countryData, countryDetailData) or
       LoggerOpsInterpreters.loggerListStateInterpreter
 
     val listState: ListState[List[(Country, Option[CountryDetail])]] =

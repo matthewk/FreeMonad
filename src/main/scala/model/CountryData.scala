@@ -5,13 +5,23 @@ object CountryData {
   private val spain = "Spain"
   private val europe = "Europe"
 
-  val countries = List(
+  val countryData = List(
     Country(england, "London", europe, "flag"),
     Country(spain, "Madrid", europe, "flag")
   )
 
-  val countryDetail = List(
+  val countryDetailData = List(
     CountryDetail(england, "GBP"),
     CountryDetail(spain, "Euro")
   )
+
+  def printResult(c: Country, d: Option[CountryDetail]): Unit = {
+    printf(
+      "%-5s %-10s %-10s %-10s %-10s\n",
+      "",
+      c.name,
+      c.capital,
+      c.region,
+      d.map(_.currency))
+  }
 }

@@ -1,7 +1,7 @@
 package tagless
 
 import cats.implicits._
-import model.{Country, CountryDetail}
+import model.{Country, CountryData, CountryDetail}
 import utils.ApplicationWrapper
 
 import scala.concurrent.duration.Duration
@@ -45,7 +45,7 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
   application("Tagless Final") {
     appVariantExecution("State Monad") {
       StateBasedApplication.result._2.foreach {
-        case (c, d) => printResult(c, d)
+        case (c, d) => CountryData.printResult(c, d)
       }
     }
 
@@ -53,7 +53,7 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
       val futureResult = Await
         .result(FutureBasedApplication.result, atMost = Duration.Inf)
       futureResult.foreach {
-        case (c, d) => printResult(c, d)
+        case (c, d) => CountryData.printResult(c, d)
       }
     }
 
@@ -61,13 +61,5 @@ object FinallyCountryApplication extends App with ApplicationWrapper {
       StateBasedApplication.result._1.foreach(l => println(s"""\t$l""")))
   }
 
-  private def printResult(c: Country, d: Option[CountryDetail]): Unit = {
-    printf(
-      "%-5s %-10s %-10s %-10s %-10s\n",
-      "",
-      c.name,
-      c.capital,
-      c.region,
-      d.map(_.currency))
-  }
+
 }

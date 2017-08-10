@@ -1,15 +1,17 @@
 package free
 
-import model.{Country, CountryDetail}
 import cats.implicits._
+import model.{Country, CountryData, CountryDetail}
 import utils.ApplicationWrapper
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 object FreeCountryApplication extends App with ApplicationWrapper {
-  import scala.concurrent.ExecutionContext.Implicits.global
+
   import CountriesService._
+
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
     * Bringing together the program (provided by CountriesService) and
@@ -47,26 +49,16 @@ object FreeCountryApplication extends App with ApplicationWrapper {
 
   application("Free") {
     appVariantExecution("State Monad") {
-      StateBasedApplication.result._2.foreach { lc =>
-        printf("%-5s %-10s %-10s %-10s %-10s\n",
-               "",
-               lc._1.name,
-               lc._1.capital,
-               lc._1.region,
-               lc._2.map(_.currency))
+      StateBasedApplication.result._2.foreach {
+        case (c, d) => CountryData.printResult(c, d)
       }
-    }
-    appVariantExecution("Future") {
-      val fResult = Await
-        .result(FutureBasedApplication.program, atMost = Duration.Inf)
+      appVariantExecution("Future") {
+        val fResult = Await
+          .result(FutureBasedApplication.program, atMost = Duration.Inf)
 
-      fResult.foreach { lc =>
-        printf("%-5s %-10s %-10s %-10s %-10s\n",
-               "",
-               lc._1.name,
-               lc._1.capital,
-               lc._1.region,
-               lc._2.map(_.currency))
+        fResult.foreach {
+          case (c, d) => CountryData.printResult(c, d)
+        }
       }
     }
 
