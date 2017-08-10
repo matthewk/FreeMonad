@@ -16,9 +16,9 @@ object CountriesService {
     for {
       _         <- info("Starting")
       _         <- info("Getting Countries")
-      countries <- getCountries
+      countries <- countries
       _         <- info("Getting Details")
-      cd        <- countries.traverseU(getCountryDetail)
+      cd        <- countries.traverseU(countryDetail)
       _         <- info("Completed")
     } yield countries.zip(cd)
   }

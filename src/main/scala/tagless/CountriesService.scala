@@ -15,9 +15,9 @@ class CountriesService[F[_]: Monad](countriesApi: CountriesApi[F], logger: Logge
     for {
       _  <- info("Starting")
       _  <- info("Getting Countries")
-      cs <- getCountries
+      cs <- countries
       _  <- info("Getting Details")
-      cd <- cs.traverse(getCountryDetail)
+      cd <- cs.traverse(countryDetail)
       _  <- info("Completed")
     } yield cs.zip(cd)
 }

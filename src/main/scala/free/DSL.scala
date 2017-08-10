@@ -29,11 +29,11 @@ object DSL {
   class CountryOps[F[_]](implicit I: Inject[CountriesAlg, F])
     extends tagless.CountriesApi[Free[F, ?]] {
 
-    def getCountries: Free[F, List[Country]] =
-      Free.inject[CountriesAlg, F](GetCountries())
+    def countries: Free[F, List[Country]] =
+      Free.inject[CountriesAlg, F](Countries())
 
-    def getCountryDetail(country: Country): Free[F, Option[CountryDetail]] =
-      Free.inject[CountriesAlg, F](GetCountyDetail(country))
+    def countryDetail(country: Country): Free[F, Option[CountryDetail]] =
+      Free.inject[CountriesAlg, F](CountyDetail(country))
   }
 
   class LoggerOps[F[_]](implicit L: Inject[LoggerAlg, F])

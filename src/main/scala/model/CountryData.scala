@@ -1,6 +1,6 @@
 package model
 
-object CountriesData {
+object CountryData {
   private val england = "England"
   private val spain = "Spain"
   private val europe = "Europe"

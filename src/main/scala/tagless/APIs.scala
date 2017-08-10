@@ -3,9 +3,9 @@ import model.LogLevel.{DebugLevel, ErrorLevel, InfoLevel, WarnLevel}
 import model.{Country, CountryDetail, LogLevel}
 
 trait CountriesApi[F[_]] {
-  def getCountries: F[List[Country]]
+  def countries: F[List[Country]]
 
-  def getCountryDetail(country: Country): F[Option[CountryDetail]]
+  def countryDetail(country: Country): F[Option[CountryDetail]]
 }
 
 trait LoggerApi[F[_]] {

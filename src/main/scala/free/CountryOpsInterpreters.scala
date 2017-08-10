@@ -14,9 +14,9 @@ object CountryOpsInterpreters {
   def fCountryInterpreter[F[_]](t: tagless.CountriesApi[F]) =
     new (CountriesAlg ~> F) {
       override def apply[A](fa: CountriesAlg[A]): F[A] = fa match {
-        case GetCountyDetail(country) => t.getCountryDetail(country)
+        case CountyDetail(country) => t.countryDetail(country)
 
-        case GetCountries() => t.getCountries
+        case Countries() => t.countries
       }
     }
 
