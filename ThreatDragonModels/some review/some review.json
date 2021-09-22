@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "owner": "you",
+    "title": "some review"
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [
+      {
+        "title": "rrrr",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "id": 0
+      }
+    ],
+    "reviewer": "me"
+  }
+}
